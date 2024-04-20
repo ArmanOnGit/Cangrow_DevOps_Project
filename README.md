@@ -9,6 +9,6 @@ Toozih haye har prozhe ro toye file ReadMe toye hamoon directory mizaram
 
 *******************
 
-Directory Cangrow_fina first try man az prozhe hast (na akhari) 
+Directory Cangrow_finall first try man az prozhe hast (na akhari) 
 
 *********************
