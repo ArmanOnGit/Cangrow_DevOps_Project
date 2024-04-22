@@ -6,9 +6,3 @@ ye chan roozi hast ke daram roye prozhe kar mikonam ama moteasefane faramoosh ka
 
 Toozih haye har prozhe ro toye file ReadMe toye hamoon directory mizaram
 
-
-*******************
-
-Directory Cangrow_finall first try man az prozhe hast (na akhari) 
-
-*********************
