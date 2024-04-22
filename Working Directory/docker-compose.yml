@@ -6,12 +6,14 @@ services:
     container_name: Master_Database
     volumes:
       - db_master_data:/var/lib/mysql
+      - ./masterdb:/masterdb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command: ["/masterdb/sync_setup.sh"]
     networks:
       - cangrownet
 
@@ -20,6 +22,7 @@ services:
     container_name: Replica_Database
     volumes:
       - db_replica_data:/var/lib/mysql
+      - ./replicadb:/replicadb
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -28,8 +31,12 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_REPLICA_USER: ${MYSQL_REPLICA_USER}
       MYSQL_REPLICA_PASSWORD: ${MYSQL_REPLICA_PASSWORD}
+    command: ["/replicadb/sync_setup.sh"]
+    depends_on:
+      - db_master
     networks:
       - cangrownet
+
 
   nginx:
     image: nginx
