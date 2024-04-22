@@ -1,0 +1,100 @@
+version: "3.9"
+
+services:
+  db_master:
+    image: mariadb
+    container_name: Master_Database
+    volumes:
+      - db_master_data:/var/lib/mysql
+      - ./masterdb:/masterdb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command: ["/masterdb/sync_setup.sh"]
+    networks:
+      - cangrownet
+
+  db_replica:
+    image: mariadb
+    container_name: Replica_Database
+    volumes:
+      - db_replica_data:/var/lib/mysql
+      - ./replicadb:/replicadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_REPLICA_USER: ${MYSQL_REPLICA_USER}
+      MYSQL_REPLICA_PASSWORD: ${MYSQL_REPLICA_PASSWORD}
+    command: ["/replicadb/sync_setup.sh"]
+    depends_on:
+      - db_master
+    networks:
+      - cangrownet
+
+
+  nginx:
+    image: nginx
+    container_name: Nginx_LoadBalancer
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+    ports:
+      - "80:80"
+    depends_on:
+      - db_master
+      - db_replica
+    networks:
+      - cangrownet
+
+  wordpress1:
+    container_name: wordpress1
+    depends_on:
+      - nginx
+    image: wordpress
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db_master
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+    networks:
+      - cangrownet
+
+  wordpress2:
+    container_name: wordpress2
+    depends_on:
+      - nginx
+    image: wordpress:latest
+    volumes:
+      - wordpress_data:/var/www/html
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db_master
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+    networks:
+      - cangrownet
+
+volumes:
+  db_master_data: {}
+  db_replica_data: {}
+  wordpress_data: {}
+
+networks:
+  cangrownet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.20.0.0/28"
+          gateway: "172.20.0.1"
+
+
