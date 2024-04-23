@@ -1,12 +1,12 @@
-!/bin/bash
+#!/bin/bash
 
-# Check if mysql client is installed
-if ! command -v mysql &> /dev/null; then
-    # Install mysql client
-    echo "Installing mysql client..."
-    apt-get update
-    apt-get install -y mariadb-client
-fi
+apt update && apt upgrade
+apt-get install -y mariadb-client
+
+mariadb -u root -p"SQL_Arman_Pass" <<EOF
+CREATE USER 'SQL_USRtest'@'%' IDENTIFIED BY 'SQL_Passtest';
+GRANT ALL PRIVILEGES ON Master_Database.* TO 'SQL_USRtest'@'%';
+FLUSH PRIVILEGES;
+EOF
 
 sleep infinity
-
